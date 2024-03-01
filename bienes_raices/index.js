@@ -9,6 +9,10 @@ const app = express();
 app.set('view engine', 'pug') //cual es el motor de plantilla a usar
 app.set('views', './views') // la ruta donde estarán las vistas
 
+//Carpeta Pública
+app.use( express.static('public'))
+
+
 // Crear Routing
 app.use('/auth', usuarioRoutes)
 
