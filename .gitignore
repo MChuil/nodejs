@@ -1,1 +1,3 @@
 bienes_raices/node_modules/*
+bienes_raices/.env
+.DS_Store

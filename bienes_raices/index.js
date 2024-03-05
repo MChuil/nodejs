@@ -1,8 +1,21 @@
 import express from 'express'; //ECMAScriptModules
+import db from './config/db.js'
 import usuarioRoutes from './routes/usuarioRoutes.js'
 
 // Crear la app
 const app = express();
+
+//Conexion a la base de datos
+try {
+    await db.authenticate();
+    db.sync();
+    console.info('Conexion exitosa a la base de datos')
+} catch (error) {
+    console.log(error)
+}
+
+//habilitar lectura de datos de formularios
+app.use(express.urlencoded({ extended: true }))
 
 
 // Habilitar pug
