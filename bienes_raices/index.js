@@ -1,4 +1,5 @@
 import express from 'express'; //ECMAScriptModules
+import cookieParser from 'cookie-parser';
 import db from './config/db.js'
 import usuarioRoutes from './routes/usuarioRoutes.js'
 
@@ -17,6 +18,8 @@ try {
 //habilitar lectura de datos de formularios
 app.use(express.urlencoded({ extended: true }))
 
+//Habilitar Cookie Parser
+app.use( cookieParser() )
 
 // Habilitar pug
 app.set('view engine', 'pug') //cual es el motor de plantilla a usar
