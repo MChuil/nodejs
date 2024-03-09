@@ -1,7 +1,10 @@
 import express from 'express'; //ECMAScriptModules
 import cookieParser from 'cookie-parser';
+import csurf from 'tiny-csrf';
 import db from './config/db.js'
 import usuarioRoutes from './routes/usuarioRoutes.js'
+import propiedadesRoutes from './routes/propiedadesRoutes.js'
+
 
 // Crear la app
 const app = express();
@@ -19,7 +22,10 @@ try {
 app.use(express.urlencoded({ extended: true }))
 
 //Habilitar Cookie Parser
-app.use( cookieParser() )
+app.use(cookieParser("cookie-parser-secret"));
+
+// Habilitar el CSRF
+app.use(csurf("123456789iamasecret987654321look"));
 
 // Habilitar pug
 app.set('view engine', 'pug') //cual es el motor de plantilla a usar
@@ -31,6 +37,7 @@ app.use( express.static('public'))
 
 // Crear Routing
 app.use('/auth', usuarioRoutes)
+app.use('/', propiedadesRoutes)
 
 
 // definir un puerto y arrancar el proyecto

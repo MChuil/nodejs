@@ -6,12 +6,13 @@ import { emailRegister, emailForgotPassword } from '../helpers/emails.js'
 
 const formLogin = (req, res)=>{
     res.render('auth/login', {
-        page: 'Inicio de sesión'
+        page: 'Inicio de sesión',
+        csrfToken : req.csrfToken()
     });
 }
 
 const auth = async (req, res)=>{
-    //validar
+    //validar formulario
     await check('email').isEmail().withMessage('El correo electronico es obligatorio').run(req)
     await check('password').notEmpty().withMessage('La contraseña es obligatoria').run(req)
     let result = validationResult(req)
@@ -19,6 +20,7 @@ const auth = async (req, res)=>{
         //errores
         return res.render('auth/login',{
             page: 'Inicio de sesión',
+            csrfToken : req.csrfToken(),
             errors: result.array()
         })
     }
@@ -29,6 +31,7 @@ const auth = async (req, res)=>{
     if(!user){
         return res.render('auth/login',{
             page: 'Inicio de sesión',
+            csrfToken : req.csrfToken(),
             errors: [{msg: 'El Correo y/o contraseña es incorrecto'}]
         })
     }
@@ -38,6 +41,7 @@ const auth = async (req, res)=>{
     if(!user.confirmed){
         return res.render('auth/login',{
             page: 'Inicio de sesión',
+            csrfToken : req.csrfToken(),
             errors: [{msg: 'La cuenta no esta confirmada'}]
         })
     }
@@ -46,6 +50,7 @@ const auth = async (req, res)=>{
     if(!user.verifyPassword(password)){
         return res.render('auth/login',{
             page: 'Inicio de sesión',
+            csrfToken : req.csrfToken(),
             errors: [{msg: 'El Correo y/o contraseña es incorrecto'}]
         })
     }
@@ -63,13 +68,15 @@ const auth = async (req, res)=>{
 
 const formRegister = (req, res) =>{
     res.render('auth/register', {
-        page : 'Crear Cuenta'
+        page : 'Crear Cuenta',
+        csrfToken : req.csrfToken()
     })
 }
 
 const formForgotPassword = (req, res) =>{
     res.render('auth/forgot-password', {
-        page : 'Recuperar acceso a Bienes Raices'
+        page : 'Recuperar acceso a Bienes Raices',
+        csrfToken : req.csrfToken()
     })
 }
 
@@ -89,6 +96,7 @@ const register = async (req, res) =>{
         //errores
         return res.render('auth/register',{
             page: 'Crear Cuenta',
+            csrfToken : req.csrfToken(),
             errors: result.array(),
             user: {
                 name: name,
@@ -104,6 +112,7 @@ const register = async (req, res) =>{
     if(userExist){
         return res.render('auth/register',{
             page: 'Crear Cuenta',
+            csrfToken : req.csrfToken(),
             errors: [{msg: 'El correo electronico ya existe'}],
             user: {
                 name: name,
@@ -172,6 +181,7 @@ const resetPassword = async (req, res) => {
         //errores
         return res.render('auth/forgot-password',{
             page: 'Recuperar Acceso a Bienes Raices',
+            csrfToken : req.csrfToken(),
             errors: result.array(),
         })
     }
@@ -183,6 +193,7 @@ const resetPassword = async (req, res) => {
         //errores
         return res.render('auth/forgot-password',{
             page: 'Recuperar Acceso a Bienes Raices',
+            csrfToken : req.csrfToken(),
             errors: [{msg: 'El correo electronico no se encuentra es nuestro sistema'}],
         })
     }
@@ -234,6 +245,7 @@ const newPassword = async (req, res) =>{
         //errores
         return res.render('auth/new-password',{
             page: 'Restablece tu contraseña',
+            csrfToken : req.csrfToken(),
             errors: result.array()
         })
     }
