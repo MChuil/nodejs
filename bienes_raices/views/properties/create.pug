@@ -1,9 +1,7 @@
 extends ../layout/index
 block styles
-    link(rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-        crossorigin="")
-    #map { height: 180px; }
+    link(rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css")
+
 block contenido
     div.py-10
         h1.text-4xl.my-10.font-extrabold.text-center Bienes 
@@ -19,6 +17,9 @@ block contenido
                 div
                     label.block.text-sm.uppercase.text-gray-700.mb-5.font-bold(for="title") Titulo de la propiedad
                     input#title.w-full.px-3.py-2.border.border-gray-300.rounded-md.placeholder-gray-400(placeholder="Ej. Casa con vista al mar", type="text", name="title" value= user ? user.name : '')
+                div
+                    label.block.text-sm.uppercase.text-gray-700.mb-5.font-bold(for="description") Descripción de la propiedad
+                    textarea#description.w-full.px-3.py-2.border.border-gray-300.rounded-md.placeholder-gray-400(placeholder="Ej. Dos pisos, etc", name="description")
         
                 div(class="md:flex md:gap-4 space-y-5 md:space-y-0")
                     div(class="md:w-1/2")
@@ -55,10 +56,24 @@ block contenido
                             - var i = 1;
                                 while i <= 6
                                     option(value=i) #{i++}
-                div#map
+                
+                div.border-gray-200.border-t.py-5.space-y-8
+                    h3.text-lg.font-medium.text-gray-900 Ubicación
+                    p.text-gray-600 Indica la propiedad en el mapa
+
+                #mapa.h-96
+
+                div
+                    p.calle
+                
+                input(type="hidden" name="address" id="address")
+                input(type="hidden" name="lat" id="lat")
+                input(type="hidden" name="lng" id="lng")
 
 
 block scripts
-    script(src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-        crossorigin="")
+    script(src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js")
+    script(src="https://unpkg.com/esri-leaflet@3.0.8/dist/esri-leaflet.js")
+    script(src="https://unpkg.com/esri-leaflet-geocoder@2.2.13/dist/esri-leaflet-geocoder.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-geosearch/2.7.0/bundle.min.js")
+    script(src="/js/mapa.js")

@@ -1,4 +1,1 @@
-bienes_raices/node_modules/
-bienes_raices/node_modules/.bin/*
-.DS_Store
-bienes_raices/.env
+bienes_raices/node_modules/*
