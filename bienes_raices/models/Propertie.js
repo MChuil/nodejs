@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize'
 import db from '../config/db.js'
 
-const Propertie = db.define('Properties', {
+const Propertie = db.define('properties', {
     id : {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -14,14 +14,6 @@ const Propertie = db.define('Properties', {
     },
     description : {
         type: DataTypes.TEXT,
-        allowNull: false
-    },
-    category : {
-        type: DataTypes.STRING(25),
-        allowNull: false
-    },
-    price : {
-        type: DataTypes.STRING,
         allowNull: false
     },
     rooms : {
@@ -57,7 +49,6 @@ const Propertie = db.define('Properties', {
         allowNull: false,
         defaultValue: false
     },
-     //TODO: Crear el campo para relacionar con el usuario
 })
 
 export default Propertie
