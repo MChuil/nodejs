@@ -1,2 +1,4 @@
 bienes_raices/node_modules/*
-bienes_raices/node_modules/.bin/conc
+bienes_raices/public/uploads/*
+bienes_raices/.DS_Store
+.DS_Store

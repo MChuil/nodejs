@@ -1,12 +1,15 @@
 import express from 'express'
 import { body } from 'express-validator'
-import { admin, crear, guardar } from '../controllers/propiedadesController.js'
+import { admin, crear, guardar, agregarImagen, saveImage, editar } from '../controllers/propiedadesController.js'
+import protectRoute from '../middleware/protectRoute.js'
+import upload from '../middleware/uploadFile.js'
 const router = express.Router()
 
 
-router.get('/mis-propiedades', admin)
-router.get('/propiedad/crear', crear)
+router.get('/mis-propiedades', protectRoute, admin)
+router.get('/propiedad/crear', protectRoute, crear)
 router.post('/propiedad/guardar', 
+    protectRoute,
     body('title').notEmpty().withMessage('El titulo de la propiedad es obligatorio'),
     body('description')
         .notEmpty().withMessage('La descripción es obligatoria')
@@ -20,5 +23,15 @@ router.post('/propiedad/guardar',
     body('lat').notEmpty().withMessage('Indica la ubicación en el mapa'),
     guardar
 )
+
+router.get('/propiedades/agregar-imagen/:id', protectRoute, agregarImagen)
+
+router.post('/propiedades/agregar-imagen/:id',
+    protectRoute,
+    upload.single('imagen'),
+    saveImage
+)
+
+router.get('/propiedades/editar/:id', protectRoute, editar)
 
 export default router

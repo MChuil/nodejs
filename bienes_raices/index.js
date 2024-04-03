@@ -1,6 +1,6 @@
 import express from 'express'; //ECMAScriptModules
 import cookieParser from 'cookie-parser';
-import csurf from 'tiny-csrf';
+import csurf from 'csurf';
 import db from './config/db.js'
 import usuarioRoutes from './routes/usuarioRoutes.js'
 import propiedadesRoutes from './routes/propiedadesRoutes.js'
@@ -22,10 +22,10 @@ try {
 app.use(express.urlencoded({ extended: true }))
 
 //Habilitar Cookie Parser
-app.use(cookieParser("cookie-parser-secret"));
+app.use(cookieParser());
 
 // Habilitar el CSRF
-app.use(csurf("123456789iamasecret987654321look"));
+app.use(csurf({cookie: true}));
 
 // Habilitar pug
 app.set('view engine', 'pug') //cual es el motor de plantilla a usar
