@@ -4,6 +4,8 @@ import csurf from 'csurf';
 import db from './config/db.js'
 import usuarioRoutes from './routes/usuarioRoutes.js'
 import propiedadesRoutes from './routes/propiedadesRoutes.js'
+import appRoutes from './routes/appRoutes.js'
+import apiRoutes from './routes/apiRoutes.js'
 
 
 // Crear la app
@@ -36,8 +38,11 @@ app.use( express.static('public'))
 
 
 // Crear Routing
+app.use('/', appRoutes)
 app.use('/auth', usuarioRoutes)
 app.use('/', propiedadesRoutes)
+app.use('/api', apiRoutes)
+
 
 
 // definir un puerto y arrancar el proyecto

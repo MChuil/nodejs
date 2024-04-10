@@ -1,24 +1,70 @@
+import { unlink } from 'node:fs/promises'
 import { validationResult } from 'express-validator';
 import {Price, Category, Propertie} from '../models/index.js'
 
 const admin = async (req, res)=>{
 
-    const { id } = req.user
+    //propiedad?page=1
+    //leer query string
+    const { page: paginaActual } = req.query
+    
+    //expression regular
+    const expresion = /^[0-9]$/
+    if(!expresion.test(paginaActual)){
+        return res.redirect('/mis-propiedades?page=1')    
+    }
 
-    const properties = await Propertie.findAll({
-        where :{
-            userId : id
-        },
-        include: [
-            { model: Category},
-            { model: Price}
-        ]
-    })
+    try {
+        const { id } = req.user
 
-    res.render('properties/admin', {
-        page: 'Mis propiedades',
-        properties
-    })
+        // limit y offset para paginar
+        const limit = 2
+        const offset = ((paginaActual * limit) - limit)
+
+        /**
+         *  1 x 10 = 10 - 10= 0
+         *  2 x 10 = 20 - 10 = 10
+         *  3 x 10 = 30 -10 = 20
+         *  4 x 10 = 40 - 10 = 30
+         * 
+         *  1 x 4 = 4 - 4 = 0
+         *  2 x 4 = 8 - 4 = 4
+         */
+
+        const [properties, total] = await Promise.all([
+            Propertie.findAll({
+                limit,  //limite
+                offset,
+                where :{
+                    userId : id
+                },
+                include: [
+                    { model: Category},
+                    { model: Price}
+                ]
+            }),
+            Propertie.count({
+                where: {
+                    userId : id
+                }
+            })
+        ])
+
+    
+        res.render('properties/admin', {
+            page: 'Mis propiedades',
+            properties,
+            paginacion: Math.ceil(total / limit),
+            csrfToken : req.csrfToken(),
+            paginaActual,
+            offset,
+            limit,
+            total
+        })
+    } catch (error) {
+        console.log(error)
+    }
+
 }
 
 const crear = async (req, res) =>{
@@ -141,7 +187,6 @@ const saveImage = async(req, res, next) =>{
 const editar = async(req, res)=>{
 
     const { id } = req.params
-    console.log(id)
     //validar que la propiedad exista
     const property = await Propertie.findByPk(id)
     if(!property){
@@ -158,9 +203,10 @@ const editar = async(req, res)=>{
         Price.findAll(),
         Category.findAll()
     ])
-
+    // property.category = property.categoryId;
+    // property.price = property.priceId;
     res.render('properties/edit',{
-        page: 'Editar propiedad',
+        page: `Editar propiedad: ${property.title}`,
         prices,
         categories,
         csrfToken : req.csrfToken(),
@@ -169,11 +215,138 @@ const editar = async(req, res)=>{
 }
 
 
+const actualizar = async(req, res) =>{
+
+    // Resultado de la validación
+    let result = validationResult(req)
+    if(!result.isEmpty()){  //si no paso la validación
+        const [prices, categories] = await Promise.all([
+            Price.findAll(),
+            Category.findAll()
+        ])
+        res.render('properties/edit',{
+            page: 'Editar propiedad: ',
+            prices,
+            categories,
+            csrfToken : req.csrfToken(),
+            errors: result.array(),
+            data: req.body,
+        })
+    }
+    const { id } = req.params
+    //validar que la propiedad exista
+    const property = await Propertie.findByPk(id)
+    if(!property){
+        return res.redirect('/mis-propiedades')
+    }
+
+    //validar que la propiedad sea del usuario
+    if(property.userId.toString() !== req.user.id.toString()){
+        return res.redirect('/mis-propiedades')
+    }
+    
+    //actualizar datos de la propiedad
+    try {
+        const {title, description, rooms, parking, wc, address, lat, lng, price:priceId, category:categoryId } = req.body
+        property.set({
+            title,
+            description,
+            rooms,
+            parking,
+            wc,
+            address,
+            lat,
+            lng,
+            priceId,
+            categoryId
+        })
+        await property.save()
+
+        res.redirect('/mis-propiedades')
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+const eliminar = async(req, res) =>{
+    const { id } = req.params
+    
+    //validar que la propiedad exista
+    const property = await Propertie.findByPk(id)
+    if(!property){
+        return res.redirect('/mis-propiedades')
+    }
+
+    //validar que la propiedad sea del usuario
+    if(property.userId.toString() !== req.user.id.toString()){
+        return res.redirect('/mis-propiedades')
+    }
+
+    //eliminar imagen
+    await unlink(`public/uploads/${property.image}`)
+    
+    console.log(`imagen eliminada ${property.image}`)
+    //eliminar propiedad
+    await property.destroy()
+
+    res.redirect('/mis-propiedades')
+}
+
+
+const actualizarEstado = async(req, res)=>{
+    const { id } = req.params
+    //validar que la propiedad exista
+    const property = await Propertie.findByPk(id)
+    if(!property){
+        return res.redirect('/mis-propiedades')
+    }
+
+    //validar que la propiedad sea del usuario
+    if(property.userId.toString() !== req.user.id.toString()){
+        return res.redirect('/mis-propiedades')
+    }
+
+    const published = (property.published == 1) ? 0 : 1 
+
+    property.set({ published })
+
+    await property.save()
+
+    res.redirect('/mis-propiedades')
+} 
+
+
+//Publico--------------
+
+const verPropiedad = async(req, res) =>{
+    const { id } = req.params
+
+    //validar que la propiedad exista
+    const property = await Propertie.findByPk(id, {
+        include: [
+            { model: Price },
+            { model: Category }
+        ]
+    })
+    if(!property){
+        return res.redirect('/404')
+    }
+
+    res.render('properties/show', {
+        property,
+        page: property.title,
+    })
+}
 export {
     admin,
     crear,
     guardar,
     agregarImagen,
     saveImage,
-    editar
+    editar,
+    actualizar,
+    eliminar,
+    actualizarEstado,
+    verPropiedad
 }
