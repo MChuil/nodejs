@@ -1,6 +1,7 @@
 import { unlink } from 'node:fs/promises'
 import { validationResult } from 'express-validator';
-import {Price, Category, Propertie} from '../models/index.js'
+import {Price, Category, Propertie, Message} from '../models/index.js'
+import { isSeller } from '../helpers/index.js'
 
 const admin = async (req, res)=>{
 
@@ -18,7 +19,7 @@ const admin = async (req, res)=>{
         const { id } = req.user
 
         // limit y offset para paginar
-        const limit = 2
+        const limit = 4
         const offset = ((paginaActual * limit) - limit)
 
         /**
@@ -40,7 +41,8 @@ const admin = async (req, res)=>{
                 },
                 include: [
                     { model: Category},
-                    { model: Price}
+                    { model: Price},
+                    { model: Message}
                 ]
             }),
             Propertie.count({
@@ -321,7 +323,6 @@ const actualizarEstado = async(req, res)=>{
 
 const verPropiedad = async(req, res) =>{
     const { id } = req.params
-
     //validar que la propiedad exista
     const property = await Propertie.findByPk(id, {
         include: [
@@ -333,11 +334,71 @@ const verPropiedad = async(req, res) =>{
         return res.redirect('/404')
     }
 
+    console.log()
+
     res.render('properties/show', {
-        property,
         page: property.title,
+        property,
+        csrfToken : req.csrfToken(),
+        user: req.user,
+        isSeller : isSeller(req.user?.id, property.userId) //true o false
     })
 }
+
+const sendMessage = async(req, res) => {
+    const { id } = req.params
+    //validar que la propiedad exista
+    const property = await Propertie.findByPk(id, {
+        include: [
+            { model: Price },
+            { model: Category }
+        ]
+    })
+    if(!property){
+        return res.redirect('/404')
+    }
+
+    //mostrar los errores
+    let result = validationResult(req)
+    if(!result.isEmpty()){
+        return res.render('properties/show', {
+            page: property.title,
+            property,
+            csrfToken : req.csrfToken(),
+            user: req.user,
+            isSeller : isSeller(req.user?.id, property.userId), //true o false
+            errors: result.array(),
+        })
+    }
+
+    const { message } = req.body
+    const { id: propertyId } = req.params
+    const { id: userId } = req.user
+    //Almacenar el mensaje
+    await Message.create({
+        message ,
+        propertyId,
+        userId
+    })
+
+    res.redirect('/')
+
+    // res.render('properties/show', {
+    //     page: property.title,
+    //     property,
+    //     csrfToken : req.csrfToken(),
+    //     user: req.user,
+    //     isSeller : isSeller(req.user?.id, property.userId), //true o false
+    //     send: true
+    // })
+}
+
+
+//leer los mensajes
+const showMessages = async (req, res) =>{
+    res.send('Mensajes...')
+}
+
 export {
     admin,
     crear,
@@ -348,5 +409,7 @@ export {
     actualizar,
     eliminar,
     actualizarEstado,
-    verPropiedad
+    verPropiedad,
+    sendMessage,
+    showMessages
 }

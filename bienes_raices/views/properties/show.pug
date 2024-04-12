@@ -43,6 +43,29 @@ block contenido
                     p(class="text-gray-600 text-xs font-bold") Dirección
                         span(id="address" class="text-gray-900 text-lg block")=property.address
 
+                    if !isSeller
+                        div(class='mt-10')
+                            h1(class="text-2xl text-center") Vendedor
+                        if send
+                            p(class="bg-green-100 text-green-600 text-center p-2 uppercase") Mensaje enviado correctamente
+
+                        else 
+                            if user
+                                if errors
+                                    div.max-w-md.mx-auto.my-10
+                                        each error in errors 
+                                            p.bg-red-600.text-white.uppercase.text-xs.text-center.p-2.mb-1.font-bold= error.msg
+
+                                form(action=`/propiedad/${property.id}` method="post")
+                                    input(type="hidden" name="_csrf" value=csrfToken)
+                                    div(class="space-y-5")
+                                        label(for="message") Mensaje
+                                        textarea(name="message", cols="30", rows="5" class="w-full py-2 border shadow p-2")
+                                        input(type="submit" value="Enviar mensaje" class="bg-indigo-600 cursor-pointer text-white uppercase font-bold w-full p-2") 
+                            else
+                                div(class="flex justify-center gap-2")
+                                    p Si deseas contactar al vendedor 
+                                    a(href="/auth/registro" class="text-indigo-700") debes crear una cuenta
 
 block scripts
     script(src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js") 

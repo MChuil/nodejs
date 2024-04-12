@@ -1,0 +1,6 @@
+* Titulo de la propiedad en Editar
+* Boton de cancelar en nueva propiedad
+* Boton de cancelar en editar propiedad
+* Crear pagina 404 (ruta, metodo del controlador y la vista)
+* Boton atras de vista de propiedad
+* Tener 20 propiedades

@@ -1,8 +1,10 @@
 import express from 'express'
 import { body } from 'express-validator'
-import { admin, crear, guardar, agregarImagen, saveImage, editar, actualizar, eliminar, actualizarEstado, verPropiedad } from '../controllers/propiedadesController.js'
+import { admin, crear, guardar, agregarImagen, saveImage, editar, actualizar, eliminar, actualizarEstado, verPropiedad, sendMessage, showMessages } from '../controllers/propiedadesController.js'
 import protectRoute from '../middleware/protectRoute.js'
 import upload from '../middleware/uploadFile.js'
+import identifyUser from '../middleware/identifyUser.js'
+
 const router = express.Router()
 
 
@@ -60,7 +62,27 @@ router.post('/propiedad/actualizar/estado/:id',
     actualizarEstado
 )
 
+
+router.get('/mensajes/:id',
+    protectRoute,
+    showMessages
+)
+
+
 //Area publica -----------------------------------------------------
 
-router.get('/propiedad/:id', verPropiedad)
+router.get('/propiedad/:id',
+    identifyUser,
+    verPropiedad
+)
+
+//Guardar los mensajes
+router.post('/propiedad/:id', 
+    identifyUser,
+    body('message').isLength({ min:10 }).withMessage('El mensaje es demasiado breve o esta vacio'),
+    sendMessage
+)
+
+
+
 export default router

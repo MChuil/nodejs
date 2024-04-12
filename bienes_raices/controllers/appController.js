@@ -1,3 +1,4 @@
+import Sequelize from 'sequelize'
 import { Price, Category, Propertie } from '../models/index.js'
 
 const home = async (req, res)=>{
@@ -47,7 +48,8 @@ const home = async (req, res)=>{
         categories,
         prices,
         houses,
-        departments
+        departments,
+        csrfToken : req.csrfToken()
     })
 }
 
@@ -73,18 +75,43 @@ const categories = async (req, res)=>{
 
     res.render('category',{
         page:`Categoria | ${category.name}s`,
-        properties
+        properties,
+        csrfToken : req.csrfToken()
     })
 }
 
 const notFound = async (req, res)=>{
     res.render('404',{
-        page: 'No encontrado'
+        page: 'No encontrado',
+        csrfToken : req.csrfToken()
     })
 }
 
 const search = async (req, res)=>{
+    const { termino } = req.body
 
+    //validar que no este vacio el termino
+    if(!termino.trim()){
+        return res.redirect('back')
+    }
+
+    //consultar propiedades
+    const properties = await Propertie.findAll({
+        where: {
+            title:{
+                [Sequelize.Op.like] : '%' + termino + '%'
+            }
+        },
+        include:[
+            { model: Price }
+        ]
+    })
+
+    res.render('search',{
+        page: 'Resultado de busqueda',
+        properties,
+        csrfToken : req.csrfToken()
+    })
 }
 
 
