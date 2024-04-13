@@ -1,6 +1,10 @@
 * Titulo de la propiedad en Editar
 * Boton de cancelar en nueva propiedad
 * Boton de cancelar en editar propiedad
-* Crear pagina 404 (ruta, metodo del controlador y la vista)
 * Boton atras de vista de propiedad
 * Tener 20 propiedades
+* boton de regresar en TODAS las paginas que lo necesiten
+* Mi perfil (incluyendo cambio de contraseña)
+* Quitar de la parte publica las propiedades que NO esten publicadas
+* Habilitar el correo real (brevo.com)
+* Publicar el proyecto

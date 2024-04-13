@@ -12,7 +12,6 @@ const protectRoute = async(req, res, next) =>{
 
     //Comprobar la validez del token
     try {
-        
         const decoded = jwt.verify( _token, process.env.JWT_SECRET)
         const user = await User.scope('deletePassword').findByPk(decoded.id)
         if(user){

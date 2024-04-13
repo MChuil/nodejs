@@ -1,7 +1,7 @@
 import { unlink } from 'node:fs/promises'
 import { validationResult } from 'express-validator';
-import {Price, Category, Propertie, Message} from '../models/index.js'
-import { isSeller } from '../helpers/index.js'
+import {Price, Category, Propertie, Message, User} from '../models/index.js'
+import { isSeller, formateDate } from '../helpers/index.js'
 
 const admin = async (req, res)=>{
 
@@ -168,7 +168,6 @@ const agregarImagen = async(req, res) => {
 
 }
 
-
 const saveImage = async(req, res, next) =>{
     const {id } = req.params
     try {
@@ -183,7 +182,6 @@ const saveImage = async(req, res, next) =>{
         console.log(error)
     }
 }
-
 
 
 const editar = async(req, res)=>{
@@ -215,7 +213,6 @@ const editar = async(req, res)=>{
         data: property,
     })
 }
-
 
 const actualizar = async(req, res) =>{
 
@@ -330,7 +327,8 @@ const verPropiedad = async(req, res) =>{
             { model: Category }
         ]
     })
-    if(!property){
+    
+    if(!property || !property.published ){
         return res.redirect('/404')
     }
 
@@ -396,7 +394,38 @@ const sendMessage = async(req, res) => {
 
 //leer los mensajes
 const showMessages = async (req, res) =>{
-    res.send('Mensajes...')
+
+    const { id } = req.params
+    
+    //validar que la propiedad exista
+
+    /**
+     *  propiedades -> mensajes -> usuario (Daniel)
+     * 
+     */
+    const property = await Propertie.findByPk(id,{
+        include: [
+            { model: Message, 
+                include: [
+                    { model: User.scope('deletePassword') }
+                ]
+            },
+        ]
+    })
+    if(!property){
+        return res.redirect('/mis-propiedades')
+    }
+
+    //validar que la propiedad sea del usuario
+    if(property.userId.toString() !== req.user.id.toString()){
+        return res.redirect('/mis-propiedades')
+    }
+
+    res.render('properties/message',{
+        page: 'Mensajes',
+        messages: property.messages,
+        formateDate
+    })
 }
 
 export {

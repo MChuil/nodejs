@@ -274,6 +274,10 @@ const newPassword = async (req, res) =>{
     
 }
 
+const logout = async(req, res) =>{
+    return res.clearCookie('_token').status(200).redirect('/auth/inicio')
+}
+
 export {
     formLogin,
     auth,
@@ -283,5 +287,6 @@ export {
     comprobar,
     resetPassword,
     comprobarToken,
-    newPassword
+    newPassword,
+    logout
 }
